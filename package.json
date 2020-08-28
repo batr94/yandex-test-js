@@ -19,6 +19,9 @@
   "homepage": "https://gitlab.com/pcr-web/canonical_ru-en_sprint7.git#README",
   "dependencies": {
     "gh-pages": "^2.2.0",
-    "htmlhint": "^0.11.0"
+    "htmlhint": "^0.11.0",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
   }
 }
