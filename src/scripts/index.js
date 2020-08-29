@@ -1,10 +1,10 @@
 import Card from './Card.js';
 import Section from './Section.js';
 import FormValidator from './FormValidator.js';
+import PopopWithImage from './PopupWithImage';
+import PopupWithForm from './PopupWithForm';
+import UserInfo from './UserInfo';
 import '../pages/index.css';
-
-const ESC_KEYCODE = 27;
-// Константы
 
 const initialCards = [
   {
@@ -34,26 +34,12 @@ const initialCards = [
 ];
 
 // Врапперы
-const placesWrap = document.querySelector('.places__list');
 const editFormModalWindow = document.querySelector('.popup_type_edit');
 const cardFormModalWindow = document.querySelector('.popup_type_new-card');
-const imageModalWindow = document.querySelector('.popup_type_image');
-// С submit ребята еще плохо работают.
 
 // Кнопки и прочие дом узлы
 const openEditFormButton = document.querySelector('.profile__edit-button');
 const openCardFormButton = document.querySelector('.profile__add-button');
-
-// DOM узлы профиля
-const profileTitle = document.querySelector('.profile__title');
-const profileDescription = document.querySelector('.profile__description');
-
-// Данные форм и элементы форм
-const titleInputValue = editFormModalWindow.querySelector('.popup__input_type_name');
-const descriptionInputValue = editFormModalWindow.querySelector('.popup__input_type_description');
-const cardNameInputValue = cardFormModalWindow.querySelector('.popup__input_type_card-name');
-const cardLinkInputValue = cardFormModalWindow.querySelector('.popup__input_type_url');
-// решение на минималках. Конечно, студент может корректно обобрать велью инпутов в форме.
 
 const cardSelector = '.card-template';
 const defaultFormConfig = {
@@ -65,84 +51,42 @@ const defaultFormConfig = {
   errorClass: 'popup__error_visible'
 };
 
-const isEscEvent = (evt, action) => {
-  const activePopup = document.querySelector('.popup_is-opened');
-  if (evt.which === ESC_KEYCODE) {
-    action(activePopup);
-  }
-};
-
-const openModalWindow = (modalWindow) => {
-  modalWindow.classList.add('popup_is-opened');
-  document.addEventListener('keyup', handleEscUp);
-};
-
-const closeModalWindow = (modalWindow) => {
-  modalWindow.classList.remove('popup_is-opened');
-  document.removeEventListener('keyup', handleEscUp);
-};
-
 const renderCard = (data) => {
-  const card = new Card(data, cardSelector);
+  const card = new Card(data, cardSelector, cardImagePopup.open);
   return card.getView();
 };
-
-const handleEscUp = (evt) => {
-  evt.preventDefault();
-  isEscEvent(evt, closeModalWindow);
-};
-
-const formSubmitHandler = (evt) => {
-  evt.preventDefault();
-  profileTitle.textContent = titleInputValue.value;
-  profileDescription.textContent = descriptionInputValue.value;
-  closeModalWindow(editFormModalWindow);
-};
-
-const cardFormSubmitHandler = (evt) => {
-  evt.preventDefault();
+const cardFormSubmitHandler = (elements) => {
   cardsSection.addItem(renderCard({
-    name: cardNameInputValue.value,
-    link: cardLinkInputValue.value
+    name: elements['place-name'].value,
+    link: elements['link'].value,
   }));
-  closeModalWindow(cardFormModalWindow);
+  cardFormPopup.close();
 };
-
-// EventListeners
-editFormModalWindow.addEventListener('submit', formSubmitHandler);
-cardFormModalWindow.addEventListener('submit', cardFormSubmitHandler);
-
-openEditFormButton.addEventListener('click', () => {
-  titleInputValue.value = profileTitle.textContent;
-  descriptionInputValue.value = profileDescription.textContent;
-  openModalWindow(editFormModalWindow);
-});
-
-openCardFormButton.addEventListener('click', () => {
-  openModalWindow(cardFormModalWindow);
-});
-
-editFormModalWindow.addEventListener('click', (evt) => {
-  if (evt.target.classList.contains('popup') || evt.target.classList.contains('popup__close')) {
-    closeModalWindow(editFormModalWindow);
-  }
-});
-cardFormModalWindow.addEventListener('click', (evt) => {
-  if (evt.target.classList.contains('popup') || evt.target.classList.contains('popup__close')) {
-    closeModalWindow(cardFormModalWindow);
-  }
-});
-imageModalWindow.addEventListener('click', (evt) => {
-  if (evt.target.classList.contains('popup') || evt.target.classList.contains('popup__close')) {
-    closeModalWindow(imageModalWindow);
-  }
-});
+const formSubmitHandler = (elements) => {
+  userInfo.setUserInfo({
+    name: elements['name'].value,
+    description: elements['description'].value
+  });
+  userInfoFormPopup.close();
+};
 
 const cardsSection = new Section({items: initialCards, renderer: renderCard}, '.places__list');
-cardsSection.render();
+const cardImagePopup = new PopopWithImage('.popup_type_image');
+const cardFormPopup = new PopupWithForm('.popup_type_new-card', cardFormSubmitHandler);
+const userInfoFormPopup = new PopupWithForm('.popup_type_edit', formSubmitHandler);
+const userInfo = new UserInfo({
+  name: '.profile__title',
+  description: '.profile__description'
+});
+
+openEditFormButton.addEventListener('click', () => {
+  userInfoFormPopup.open(userInfo.getUserInfo());
+});
+openCardFormButton.addEventListener('click', cardFormPopup.open);
 
 const editFormValidator = new FormValidator(defaultFormConfig, editFormModalWindow);
 const cardFormValidator = new FormValidator(defaultFormConfig, cardFormModalWindow);
-
 editFormValidator.enableValidation();
 cardFormValidator.enableValidation();
+
+cardsSection.render();
