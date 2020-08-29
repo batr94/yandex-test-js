@@ -14,6 +14,16 @@ class PopuWithForm extends Popup {
     return this._form.elements;
   }
 
+  open(defaultValues) {
+    const elements = this._getInputValues();
+    Object.keys(defaultValues).forEach(name => {
+      if(elements[name]) {
+        elements[name].value = defaultValues[name];
+      }
+    });
+    super.open();
+  }
+
   close() {
     super.close();
     this._form.reset();
