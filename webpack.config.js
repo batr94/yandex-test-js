@@ -21,7 +21,13 @@ module.exports = {
         test: /\.css$/,
         use: [
           MiniCssExtractPlugin.loader,
-          'css-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              importLoaders: 1
+            }
+          },
+          'postcss-loader',
         ]
       },
       {
@@ -58,7 +64,10 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    new MiniCssExtractPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'style.css',
+      chunkFilename: '[id].[hash].css'
+    }),
     new HtmlWebpackPlugin({ template: './src/index.html'}),
   ],
 };
