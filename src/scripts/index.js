@@ -1,4 +1,5 @@
 import Card from './Card.js';
+import Section from './Section.js';
 import FormValidator from './FormValidator.js';
 import '../pages/index.css';
 
@@ -81,9 +82,9 @@ const closeModalWindow = (modalWindow) => {
   document.removeEventListener('keyup', handleEscUp);
 };
 
-const renderCard = (data, wrap) => {
+const renderCard = (data) => {
   const card = new Card(data, cardSelector);
-  wrap.prepend(card.getView());
+  return card.getView();
 };
 
 const handleEscUp = (evt) => {
@@ -100,10 +101,10 @@ const formSubmitHandler = (evt) => {
 
 const cardFormSubmitHandler = (evt) => {
   evt.preventDefault();
-  renderCard({
+  cardsSection.addItem(renderCard({
     name: cardNameInputValue.value,
     link: cardLinkInputValue.value
-  }, placesWrap);
+  }));
   closeModalWindow(cardFormModalWindow);
 };
 
@@ -137,10 +138,8 @@ imageModalWindow.addEventListener('click', (evt) => {
   }
 });
 
-// Инициализация
-initialCards.forEach((data) => {
-  renderCard(data, placesWrap)
-});
+const cardsSection = new Section({items: initialCards, renderer: renderCard}, '.places__list');
+cardsSection.render();
 
 const editFormValidator = new FormValidator(defaultFormConfig, editFormModalWindow);
 const cardFormValidator = new FormValidator(defaultFormConfig, cardFormModalWindow);
